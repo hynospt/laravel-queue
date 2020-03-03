@@ -57,7 +57,10 @@ class Worker extends \Illuminate\Queue\Worker implements
         $queueConsumer = new QueueConsumer($context, new ChainExtension([$this]));
         foreach (explode(',', $queueNames) as $queueName) {
             $queueConsumer->bindCallback($queueName, function() {
+
+                Log::info(sprintf("%s:Before RunJob" , __METHOD__));
                 $this->runJob($this->job, $this->connectionName, $this->options);
+                Log::info(sprintf("%s:After RunJob" , __METHOD__));
 
                 return Result::ALREADY_ACKNOWLEDGED;
             });
@@ -90,12 +93,7 @@ class Worker extends \Illuminate\Queue\Worker implements
         foreach (explode(',', $queueNames) as $queueName) {
             $queueConsumer->bindCallback($queueName, function() {
             
-                Log::info(sprintf("%s:Before RunJob" , __METHOD__));
-
                 $this->runJob($this->job, $this->connectionName, $this->options);
-
-                Log::info(sprintf("%s:After RunJob" , __METHOD__));
-
 
                 return Result::ALREADY_ACKNOWLEDGED;
             });
@@ -119,6 +117,8 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function onPreConsume(PreConsume $context): void
     {
+
+        Log::info(sprintf("%s:onPreConsume Initiate" , __METHOD__));
 
         if (! $this->daemonShouldRun($this->options, $this->connectionName, $this->queueNames)) {
             Log::info(sprintf("%s:Before Pause Worker" , __METHOD__));
