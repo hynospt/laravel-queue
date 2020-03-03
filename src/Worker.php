@@ -112,9 +112,12 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function onPreConsume(PreConsume $context): void
     {
+
         if (! $this->daemonShouldRun($this->options, $this->connectionName, $this->queueNames)) {
             $this->pauseWorker($this->options, $this->lastRestart);
         }
+        
+        $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
 
         if ($this->stopped) {
             $context->interruptExecution();
@@ -152,5 +155,5 @@ class Worker extends \Illuminate\Queue\Worker implements
 
         parent::stop($status);
     }
-}
 
+}
