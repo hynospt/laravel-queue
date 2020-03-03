@@ -89,7 +89,13 @@ class Worker extends \Illuminate\Queue\Worker implements
 
         foreach (explode(',', $queueNames) as $queueName) {
             $queueConsumer->bindCallback($queueName, function() {
+            
+                Log::info(sprintf("%s:Before RunJob" , __METHOD__));
+
                 $this->runJob($this->job, $this->connectionName, $this->options);
+
+                Log::info(sprintf("%s:After RunJob" , __METHOD__));
+
 
                 return Result::ALREADY_ACKNOWLEDGED;
             });
@@ -115,7 +121,9 @@ class Worker extends \Illuminate\Queue\Worker implements
     {
 
         if (! $this->daemonShouldRun($this->options, $this->connectionName, $this->queueNames)) {
+            Log::info(sprintf("%s:Before Pause Worker" , __METHOD__));
             $this->pauseWorker($this->options, $this->lastRestart);
+            Log::info(sprintf("%s:After Pause Worker" , __METHOD__));
         }
         
         $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
@@ -139,9 +147,7 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function onPostMessageReceived(PostMessageReceived $context): void
     {
-        Log::info("Stoping onPostMessageReceived ..");
         $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
-        Log::info("Stopped onPostMessageReceived");
 
         if ($this->stopped) {
             $context->interruptExecution();
@@ -157,6 +163,17 @@ class Worker extends \Illuminate\Queue\Worker implements
         }
 
         parent::stop($status);
+    }
+
+    protected function pauseWorker(WorkerOptions $options, $lastRestart)
+    {
+
+        Log::info(sprintf("%s: begin" , __METHOD__));
+
+        $this->sleep($options->sleep > 0 ? $options->sleep : 1);
+
+        $this->stopIfNecessary($options, $lastRestart);
+        Log::info(sprintf("%s: end" , __METHOD__));
     }
 
 }
