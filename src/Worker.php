@@ -15,6 +15,7 @@ use Enqueue\Consumption\Result;
 use Enqueue\Consumption\StartExtensionInterface;
 use Enqueue\LaravelQueue\Queue;
 use Illuminate\Queue\WorkerOptions;
+use Illuminate\Support\Facades\Log;
 
 class Worker extends \Illuminate\Queue\Worker implements
     StartExtensionInterface,
@@ -138,7 +139,9 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function onPostMessageReceived(PostMessageReceived $context): void
     {
+        Log::info("Stoping onPostMessageReceived ..");
         $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
+        Log::info("Stopped onPostMessageReceived");
 
         if ($this->stopped) {
             $context->interruptExecution();
