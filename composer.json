@@ -6,18 +6,18 @@
     "license": "MIT",
     "require": {
         "php": ">=7.1",
-        "illuminate/queue": "^6.0",
+        "illuminate/queue": "^5.6",
         "queue-interop/amqp-interop": "^0.8",
         "queue-interop/queue-interop": "^0.7|^0.8",
-        "enqueue/enqueue": "^0.10",
-        "enqueue/dsn": "^0.10"
+        "enqueue/enqueue": "^0.9",
+        "enqueue/dsn": "^0.9"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.5",
-        "enqueue/enqueue": "^0.10",
-        "enqueue/null": "^0.10@dev",
-        "enqueue/test": "^0.10@dev",
-        "enqueue/simple-client": "^0.10@dev"
+        "enqueue/enqueue": "^0.9",
+        "enqueue/null": "^0.9@dev",
+        "enqueue/test": "^0.9@dev",
+        "enqueue/simple-client": "^0.9@dev"
     },
     "autoload": {
         "psr-4": { "Enqueue\\LaravelQueue\\": "src/" },
