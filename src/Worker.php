@@ -54,7 +54,9 @@ class Worker extends \Illuminate\Queue\Worker implements
         }
 
         $context = $this->queue->getQueueInteropContext();
+        Log::info("Before QueueConsumer");
         $queueConsumer = new QueueConsumer($context, new ChainExtension([$this]));
+        Log::info("After QueueConsumer");
         foreach (explode(',', $queueNames) as $queueName) {
             $queueConsumer->bindCallback($queueName, function() {
 
