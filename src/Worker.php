@@ -5,11 +5,13 @@ use Enqueue\Consumption\ChainExtension;
 use Enqueue\Consumption\Context\MessageReceived;
 use Enqueue\Consumption\Context\PostMessageReceived;
 use Enqueue\Consumption\Context\PreConsume;
+use Enqueue\Consumption\Context\PostConsume;
 use Enqueue\Consumption\Context\Start;
 use Enqueue\Consumption\Extension\LimitConsumedMessagesExtension;
 use Enqueue\Consumption\MessageReceivedExtensionInterface;
 use Enqueue\Consumption\PostMessageReceivedExtensionInterface;
 use Enqueue\Consumption\PreConsumeExtensionInterface;
+use Enqueue\Consumption\PostConsumeExtensionInterface;
 use Enqueue\Consumption\QueueConsumer;
 use Enqueue\Consumption\Result;
 use Enqueue\Consumption\StartExtensionInterface;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 class Worker extends \Illuminate\Queue\Worker implements
     StartExtensionInterface,
     PreConsumeExtensionInterface,
+    PostConsumeExtensionInterface,
     MessageReceivedExtensionInterface,
     PostMessageReceivedExtensionInterface
 {
@@ -54,6 +57,8 @@ class Worker extends \Illuminate\Queue\Worker implements
         }
 
         $context = $this->queue->getQueueInteropContext();
+        // var_dump(get_class($this->queue));
+        // die;
         Log::info("Before QueueConsumer");
         $queueConsumer = new QueueConsumer($context, new ChainExtension([$this]));
         Log::info("After QueueConsumer");
@@ -131,9 +136,32 @@ class Worker extends \Illuminate\Queue\Worker implements
         $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
 
         if ($this->stopped) {
+            Log::info(sprintf("%s:onPreConsume Stopped" , __METHOD__));
             $context->interruptExecution();
         }
     }
+
+    public function onPostConsume(PostConsume $context) : void
+    {
+
+        Log::info(sprintf("%s:onPostConsume Initiate" , __METHOD__));
+
+        // getStartTime
+        Log::info("onPostConsume variables " , [
+            "receivedMessagesCount" => $context->getReceivedMessagesCount(),
+            "cycle" => $context->getCycle(),
+            "startTime" => $context->getStartTime(),
+        ]);
+
+        $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
+
+        if ($this->stopped) {
+            Log::info(sprintf("%s:onPostConsume Stopped" , __METHOD__));
+            $context->interruptExecution();
+        }
+
+    }
+
 
     public function onMessageReceived(MessageReceived $context): void
     {
