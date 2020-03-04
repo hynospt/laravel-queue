@@ -57,19 +57,13 @@ class Worker extends \Illuminate\Queue\Worker implements
         }
 
         $context = $this->queue->getQueueInteropContext();
-        // var_dump(get_class($this->queue));
-        // die;
-        Log::info("Before QueueConsumer");
         $queueConsumer = new QueueConsumer($context, new ChainExtension([$this]));
-        Log::info("After QueueConsumer");
         foreach (explode(',', $queueNames) as $queueName) {
             $queueConsumer->bindCallback($queueName, function() {
 
-                Log::info(sprintf("%s:Before RunJob" , __METHOD__));
                 $this->runJob($this->job, $this->connectionName, $this->options);
-                Log::info(sprintf("%s:After RunJob" , __METHOD__));
-
                 return Result::ALREADY_ACKNOWLEDGED;
+                
             });
         }
 
@@ -125,18 +119,13 @@ class Worker extends \Illuminate\Queue\Worker implements
     public function onPreConsume(PreConsume $context): void
     {
 
-        Log::info(sprintf("%s:onPreConsume Initiate" , __METHOD__));
-
         if (! $this->daemonShouldRun($this->options, $this->connectionName, $this->queueNames)) {
-            Log::info(sprintf("%s:Before Pause Worker" , __METHOD__));
             $this->pauseWorker($this->options, $this->lastRestart);
-            Log::info(sprintf("%s:After Pause Worker" , __METHOD__));
         }
         
         $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
 
         if ($this->stopped) {
-            Log::info(sprintf("%s:onPreConsume Stopped" , __METHOD__));
             $context->interruptExecution();
         }
     }
@@ -144,19 +133,9 @@ class Worker extends \Illuminate\Queue\Worker implements
     public function onPostConsume(PostConsume $context) : void
     {
 
-        Log::info(sprintf("%s:onPostConsume Initiate" , __METHOD__));
-
-        // getStartTime
-        Log::info("onPostConsume variables " , [
-            "receivedMessagesCount" => $context->getReceivedMessagesCount(),
-            "cycle" => $context->getCycle(),
-            "startTime" => $context->getStartTime(),
-        ]);
-
         $this->stopIfNecessary($this->options, $this->lastRestart, $this->job);
 
         if ($this->stopped) {
-            Log::info(sprintf("%s:onPostConsume Stopped" , __METHOD__));
             $context->interruptExecution();
         }
 
@@ -197,13 +176,8 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     protected function pauseWorker(WorkerOptions $options, $lastRestart)
     {
-
-        Log::info(sprintf("%s: begin" , __METHOD__));
-
         $this->sleep($options->sleep > 0 ? $options->sleep : 1);
-
         $this->stopIfNecessary($options, $lastRestart);
-        Log::info(sprintf("%s: end" , __METHOD__));
     }
 
 }
