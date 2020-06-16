@@ -44,6 +44,16 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function daemon($connectionName, $queueNames, WorkerOptions $options)
     {
+        Log::info("start daemon WorkerOptions variables " , [
+            "delay" => $options->delay,
+            "memory" => $options->memory,
+            "timeout" => $options->timeout,
+            "sleep" => $options->sleep,
+            "maxTries" => $options->maxTries,
+            "force" => $options->force,
+            "stopWhenEmpty" => $options->stopWhenEmpty
+        ]);
+        
         $this->connectionName = $connectionName;
         $this->queueNames = $queueNames;
         $this->options = $options;
@@ -72,6 +82,7 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function runNextJob($connectionName, $queueNames, WorkerOptions $options)
     {
+
         $this->connectionName = $connectionName;
         $this->queueNames = $queueNames;
         $this->options = $options;
@@ -118,6 +129,11 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     public function onPreConsume(PreConsume $context): void
     {
+
+        Log::info("onPreConsume variables " , [
+            "cycle" => $context->getCycle(),
+            "startTime" => $context->getStartTime(),
+        ]);
 
         if (! $this->daemonShouldRun($this->options, $this->connectionName, $this->queueNames)) {
             $this->pauseWorker($this->options, $this->lastRestart);
