@@ -130,11 +130,6 @@ class Worker extends \Illuminate\Queue\Worker implements
     public function onPreConsume(PreConsume $context): void
     {
 
-        Log::info("onPreConsume variables " , [
-            "cycle" => $context->getCycle(),
-            "startTime" => $context->getStartTime(),
-        ]);
-
         if (! $this->daemonShouldRun($this->options, $this->connectionName, $this->queueNames)) {
             $this->pauseWorker($this->options, $this->lastRestart);
         }
