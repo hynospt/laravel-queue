@@ -42,6 +42,21 @@ class Worker extends \Illuminate\Queue\Worker implements
 
     protected $job;
 
+    protected function registerTimeoutHandler($job, WorkerOptions $options)
+    {
+        // We will register a signal handler for the alarm signal so that we can kill this
+        // process if it is running too long because it has frozen. This uses the async
+        // signals supported in recent versions of PHP to accomplish it conveniently.
+        $timeoutForJob = max($this->timeoutForJob($job, $options), 0);
+
+        if($timeoutForJob > 0 ){
+            pcntl_signal(SIGALRM, function () {
+                $this->kill(1);
+            });
+            pcntl_alarm($timeoutForJob);
+        }
+    }
+
     public function daemon($connectionName, $queueNames, WorkerOptions $options)
     {
         Log::info("start daemon WorkerOptions variables " , [
