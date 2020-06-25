@@ -135,4 +135,13 @@ class Queue extends BaseQueue implements QueueContract
     {
         return $this->timeToRun;
     }
+
+    /*
+        Edited by haryono
+        To reconnect from worker when got
+        Missed Server Heartbeat or Broken pipe
+    */
+    public function reconnect(){
+        $this->context->reconnect();
+    }
 }
