@@ -126,8 +126,8 @@ class Queue extends BaseQueue implements QueueContract
      */
     public function getQueueInteropContext()
     {
-        $memoryLog = sprintf("Usage %s | Real %s" , memory_get_usage(false)/1024/1024 ,  memory_get_usage(true)/1024/1024);
-        Log::info(sprintf("GetQueue Memory Log : %s" , $memoryLog));
+        // $memoryLog = sprintf("Usage %s | Real %s" , memory_get_usage(false)/1024/1024 ,  memory_get_usage(true)/1024/1024);
+        // Log::info(sprintf("GetQueue Memory Log : %s" , $memoryLog));
         return $this->context;
     }
 
